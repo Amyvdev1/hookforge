@@ -27,6 +27,6 @@ Webhook reliability is not proven by returning HTTP 200 once. A receiver has to 
 ## Evidence boundary
 HookForge is a local simulator. It does not scan, probe, or attack external webhook endpoints. A production product would add sandbox callback targets with explicit ownership verification, worker queues, persisted replay sessions, latency measurements, and CI integration.
 
-## CI setup status
-The automated GitHub Actions workflow is pending upload authorization. The tests are included and can be run locally with python -m pytest. No passing GitHub CI run is claimed.
+## Continuous integration
+The Verify workflow runs the test suite and Python compilation on Python 3.12 for pushes to main and pull requests. It has read-only repository permissions. Run the tests locally with `python -m pytest`.
 
