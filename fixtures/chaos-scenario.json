@@ -1,0 +1,10 @@
+{
+  "duplicate_count": 3,
+  "delay_seconds": 4,
+  "out_of_order": true,
+  "valid_signature": false,
+  "retry_count": 2,
+  "timeout_ms": 2500,
+  "malformed_payload": true,
+  "unknown_event_type": true
+}

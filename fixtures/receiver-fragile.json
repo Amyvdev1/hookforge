@@ -1,0 +1,11 @@
+{
+  "signature_verification": false,
+  "duplicate_protection": false,
+  "retry_safety": false,
+  "event_ordering": false,
+  "payload_validation": false,
+  "timeout_handling": false,
+  "actionable_errors": false,
+  "correlation_logging": false,
+  "unknown_event_handling": false
+}
