@@ -2,6 +2,18 @@ from app.core import CAPABILITIES,evaluate_receiver,sign_payload,verify_signatur
 
 def full_caps(): return {k:True for k in CAPABILITIES}
 
+def test_ordering_guard_prevents_state_regression():
+    safe=simulate_delivery(full_caps(),{'out_of_order':True})
+    assert safe['final_state']=='updated'
+    assert safe['deliveries'][1]['accepted'] is False
+    assert 'stale' in safe['deliveries'][1]['notes'][0]
+    assert simulate_delivery({}, {'out_of_order':True})['final_state']=='created'
+
+def test_unknown_events_are_ignored_when_protected():
+    result=simulate_delivery(full_caps(),{'unknown_event_type':True})
+    assert result['deliveries'][-1]['accepted'] is False
+    assert result['unique_event_ids']==2
+
 def test_full_receiver_scores_100_on_benign_scenario(): assert evaluate_receiver(full_caps(),{})['resilience_score']==100
 
 def test_duplicate_risk_is_explained():

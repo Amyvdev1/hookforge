@@ -79,7 +79,7 @@ def simulate_delivery(capabilities: dict[str, bool], scenario: dict[str, Any]) -
             deliveries.append({**event,"delivery_attempt":i+1,"delay_seconds":s.delay_seconds})
     if s.retry_count:
         for i in range(s.retry_count): deliveries.append({"id":"evt_retry","type":"order.updated","occurred_at":1030,"delivery_attempt":i+2,"delay_seconds":s.delay_seconds})
-    seen=set(); state="pending"
+    seen=set(); state="pending"; latest_state_time=-1
     for d in deliveries:
         valid=bool(d.get("id") and d.get("type"))
         duplicate=d.get("id") in seen if d.get("id") else False
@@ -91,10 +91,17 @@ def simulate_delivery(capabilities: dict[str, bool], scenario: dict[str, Any]) -
         if duplicate and capabilities.get("duplicate_protection"):
             accepted=False; notes.append("deduplicated")
         if d.get("type")=="unknown.experimental" and capabilities.get("unknown_event_handling"):
+            accepted=False
             notes.append("ignored unknown event safely")
+        if (accepted and capabilities.get("event_ordering")
+                and d.get("type") in {"order.created", "order.updated"}
+                and d["occurred_at"] < latest_state_time):
+            accepted=False; notes.append("ignored stale event to preserve newer state")
         if accepted and d.get("id"): seen.add(d["id"])
         if accepted and d.get("type")=="order.created": state="created"
         if accepted and d.get("type")=="order.updated": state="updated"
+        if accepted and d.get("type") in {"order.created", "order.updated"}:
+            latest_state_time=max(latest_state_time,d["occurred_at"])
         events.append({**d,"accepted":accepted,"duplicate":duplicate,"notes":notes})
     return {"final_state":state,"unique_event_ids":len(seen),"deliveries":events,"evaluation":evaluate_receiver(capabilities,scenario)}
 
